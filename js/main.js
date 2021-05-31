@@ -2,9 +2,6 @@ const CANVAS_SIZE = 400;
 const FIELD_SIZE = 8;
 const CELL_SIZE = CANVAS_SIZE / FIELD_SIZE;
 const PIECE_SIZE = CELL_SIZE - 10;
-const NOTHING = 0;
-const WHITE = 1;
-const BLACK = -1;
 let turn = -1;
 let field = [
   [0, 0, 0, 0, 0, 0, 0, 0],
@@ -23,16 +20,19 @@ function setup() {
   
   for (let i = 0; i <= 7; i++) {
     copy[i] = new Array(8);
-  }
+  } 
   
   for (let i = 0; i < FIELD_SIZE; i++)
   {
     for (let j = 0; j < FIELD_SIZE; j++)
     {
+      fill("green")
       square(CELL_SIZE * i, CELL_SIZE * j, CELL_SIZE);
     }
   }
-  copyField();
+  let passBtn = createButton("pass");
+  passBtn.position(CANVAS_SIZE / 2, CANVAS_SIZE + 10);
+  passBtn.mousePressed(pass);
 }
 
 function copyField() {
@@ -52,6 +52,8 @@ function restoreField() {
 }
 
 function draw() {
+  let whitePieces = 0;
+  let blackPieces = 0;
   for(let i = 0; i < FIELD_SIZE; i++)
   {
     for(let j = 0; j < FIELD_SIZE; j++)
@@ -59,27 +61,32 @@ function draw() {
       if(field[i][j] == 1)
       {
         fill("white");
-        ellipse(CELL_SIZE * i + CELL_SIZE / 2,CELL_SIZE * j + CELL_SIZE / 2,PIECE_SIZE,PIECE_SIZE);
+        ellipse(CELL_SIZE * j + CELL_SIZE / 2,CELL_SIZE * i + CELL_SIZE / 2,PIECE_SIZE,PIECE_SIZE);
+        whitePieces += 1;
       }
       
       if (field[i][j] == -1)
       {
         fill("black");
-        ellipse(CELL_SIZE * i + CELL_SIZE / 2, CELL_SIZE * j + CELL_SIZE / 2, PIECE_SIZE, PIECE_SIZE);
+        ellipse(CELL_SIZE * j + CELL_SIZE / 2, CELL_SIZE * i + CELL_SIZE / 2,PIECE_SIZE, PIECE_SIZE);
+        blackPieces += 1;
       }
     }
   }
 }
 
+let flg = true;
 function mouseClicked()
 {
-  let x = floor(mouseX/CELL_SIZE);
-  let y = floor(mouseY/CELL_SIZE);
+  if (flg) {
+    flg = false;
+    let x = floor(mouseX/CELL_SIZE);
+    let y = floor(mouseY/CELL_SIZE);
   
-  console.log(x,y,turn)
-  if(check(x,y) > 0) {
-    reversePieces(x,y);
-    pass();
+    if(reversePieces(x,y) > 0) {
+      pass();
+    }
+    flg = true;
   }
 }
 
@@ -102,9 +109,9 @@ function check(_x, _y) {
         
         if (x < 0 || y < 0 || x > 7 || y > 7) {
           break;
-        } else if (field[x][y] == 0) {
+        } else if (field[y][x] == 0) {
           break;
-        } else if (field[x][y] == turn) {
+        } else if (field[y][x] == turn) {
           samePieces = 1;
           break;
         }
@@ -113,7 +120,7 @@ function check(_x, _y) {
         
         // ひっくり返せるかの確認
         if (reverseCnt > 0) {
-          if (samePieces != 0) {
+          if (samePieces > 0) {
             totalReverseCnt = totalReverseCnt + reverseCnt;
           }
         }
@@ -124,9 +131,9 @@ function check(_x, _y) {
 
 function reversePieces(_x, _y) {
   let totalReverseCnt = 0;
-  copyField();
   for (let i = -1; i <= 1; i++) {
     for (let j = -1; j <= 1; j++) {
+      copyField();
       let x = _x;
       let y = _y;
       let samePieces = 0;
@@ -138,23 +145,23 @@ function reversePieces(_x, _y) {
 
         if (x < 0 || y < 0 || x > 7 || y > 7) {
           break;
-        } else if (field[x][y] == 0) {
+        } else if (field[y][x] == 0) {
           break;
-        } else if (field[x][y] == turn) {
+        } else if (field[y][x] == turn) {
           samePieces = 1;
           break;
         }
-        field[x][y] = turn;
+        field[y][x] *= -1;
         reverseCnt = reverseCnt + 1;
       }
 
       // ひっくり返せるかの確認
       if (reverseCnt > 0) {
-        if (samePieces == 0) {
-          restoreField();
-        } else {
+        if (samePieces > 0) {
           totalReverseCnt = totalReverseCnt + reverseCnt;
-          field[_x][_y] = turn;
+          field[_y][_x] = turn;
+        } else {
+          restoreField();
         }
       }
     }
