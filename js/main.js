@@ -64,7 +64,6 @@ function draw() {
         ellipse(CELL_SIZE * j + CELL_SIZE / 2,CELL_SIZE * i + CELL_SIZE / 2,PIECE_SIZE,PIECE_SIZE);
         whitePieces += 1;
       }
-      
       if (field[i][j] == -1)
       {
         fill("black");
@@ -75,58 +74,17 @@ function draw() {
   }
 }
 
-let flg = true;
 function mouseClicked()
 {
-  if (flg) {
-    flg = false;
-    let x = floor(mouseX/CELL_SIZE);
-    let y = floor(mouseY/CELL_SIZE);
-  
-    if(reversePieces(x,y) > 0) {
-      pass();
-    }
-    flg = true;
+  let x = floor(mouseX/CELL_SIZE);
+  let y = floor(mouseY/CELL_SIZE);
+  if(reversePieces(x,y) > 0) {
+    pass();
   }
 }
 
 function pass() {
   turn *= -1;
-}
-
-function check(_x, _y) {
-  let totalReverseCnt = 0;
-  for (let i = -1; i <= 1; i++) {
-    for (let j = -1; j <= 1; j++) {
-      let x = _x;
-      let y = _y;
-      let samePieces = 0;
-      let reverseCnt = 0;
-      
-      while (true) {
-        x += i;
-        y += j;
-        
-        if (x < 0 || y < 0 || x > 7 || y > 7) {
-          break;
-        } else if (field[y][x] == 0) {
-          break;
-        } else if (field[y][x] == turn) {
-          samePieces = 1;
-          break;
-        }
-        reverseCnt = reverseCnt + 1;
-        }
-        
-        // ひっくり返せるかの確認
-        if (reverseCnt > 0) {
-          if (samePieces > 0) {
-            totalReverseCnt = totalReverseCnt + reverseCnt;
-          }
-        }
-    }
-  }
-  return totalReverseCnt;
 }
 
 function reversePieces(_x, _y) {
